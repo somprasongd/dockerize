@@ -1,0 +1,36 @@
+version: '3'
+services:
+  # reverse-proxy:
+  #   image: traefik # The official Traefik docker image
+  #   command: --api --docker.exposedbydefault=false # Enables the web UI and tells Træfik to listen to docker, without exposing by default
+  #   ports:
+  #     - "80:80"     # The HTTP port
+  #     - "8080:8080" # The Web UI (enabled by --api)
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+  # db:
+  #   image: postgres:10-alpine
+  #   restart: always
+  #   environment:
+  #     - POSTGRES_USER=chaofavc
+  #     - POSTGRES_PASSWORD=p@ssw0rd
+  #     - POSTGRES_DB=db-name
+  #   volumes:
+  #     - pg-data:/var/lib/postgresql/data
+  #   #   - ./sql/init.sql:/docker-entrypoint-initdb.d/1-init.sql
+
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - AppName_PORT=3001
+    # labels:
+    #   - "traefik.enable=true"
+    #   # - "traefik.frontend.rule=Host:api.chaofavc.com"
+    #   - "traefik.frontend.rule=PathPrefix:/api"
+    # depends_on:
+    #   - db
+
+# volumes: 
+#   pg-data:

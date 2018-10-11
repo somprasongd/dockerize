@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "nodemon src/index.js --exec babel-node -e js",
+    "clean": "rm -rf dist",
+    "build": "npm run clean&&mkdir dist&&babel src -s -d dist --copy-files",
+    "prod": "export NODE_ENV=production||set NODE_ENV=production&&npm run build&&node dist/index.js"
+  },
+  "author": "Somprasong Damyos",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.16.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "nodemon": "^1.18.4"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "morgan": "^1.9.1"
+  }
+}

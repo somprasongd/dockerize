@@ -1,0 +1,23 @@
+# VS Code
+.vscode
+
+# Git
+.git
+.gitignore
+
+# NPM dependencies
+node_modules
+
+# Docker configuration
+Dockerfile
+Dockerfile-dev
+Makefile
+docker-compose.yml
+docker-compose.dev.yml
+
+# Other
+.eslintignore
+.eslintrc.js
+.gitignore
+README.md
+logs/
