@@ -1,0 +1,23 @@
+version: "3.1" # if no version, v1 is assumed.
+
+services: #containers, same as docker run
+  servicename#1: #a friendly name. this is also DNS name inside network
+    image: # image name:tag
+    command: #Optional, replace the default CMD
+    environtment: #Optional, same as -e in docker run
+      - key1=value1
+      - key2=value2
+      - key3=value3
+    volumes: #Optional, same as -v in docker run
+      - v1:/service/path/to/map/1
+      - v2:/service/path/to/map/2
+  servicename#2:
+    build: . # build from Dockerfile
+
+volumes: # Optional, same as docker volume create
+  v1:
+  v2:
+
+networks: # Optional, same as docker network create
+  net1:
+  net2:
