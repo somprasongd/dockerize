@@ -1,0 +1,60 @@
+version: "2.4"
+
+x-sentry: &defaults_sentry
+  image: sentry:${SENTRY_VERSION:-9.1.1}
+  restart: unless-stopped
+  depends_on:
+    - redis
+    - postgres
+    # - memcached
+    - smtp
+  env_file: .env
+  environment:
+    # SENTRY_MEMCACHED_HOST: memcached
+    SENTRY_REDIS_HOST: redis
+    SENTRY_POSTGRES_HOST: postgres
+    SENTRY_DB_USER: sentry
+    SENTRY_DB_PASSWORD: sentry
+    SENTRY_EMAIL_HOST: smtp
+  volumes:
+    - sentry-data:/var/lib/sentry/files
+
+services:
+  smtp:
+    image: tianon/exim4
+    restart: unless-stopped
+
+  # memcached:
+  #   image: memcached:1.5-alpine
+  #   restart: unless-stopped
+
+  redis:
+    image: redis:3.2-alpine
+    restart: unless-stopped
+
+  postgres:
+    restart: unless-stopped
+    image: postgres:9.5
+    environment:
+      POSTGRES_USER: sentry
+      POSTGRES_PASSWORD: sentry
+      POSTGRES_DB: sentry
+    volumes:
+      - sentry-postgres:/var/lib/postgresql/data
+
+  sentry:
+    <<: *defaults_sentry
+    ports:
+      - 9000:9000
+
+  cron:
+    <<: *defaults_sentry
+    command: "sentry run cron"
+
+  worker:
+    <<: *defaults_sentry
+    command: "sentry run worker"
+
+volumes: 
+  sentry-data:
+  sentry-postgres:

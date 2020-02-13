@@ -1,14 +1,16 @@
-version: "3"
+version: '3'
 services:
   db:
     image: postgres:10-alpine
     restart: always
     ports:
-      - "5433:5432"
+      - '5433:5432'
     environment:
+      - TZ=Asia/Bangkok
+      - PGTZ=Asia/Bangkok
       - POSTGRES_USER=${PG_USERNAME} # change db user
       - POSTGRES_PASSWORD=${PG_PASSWORD} # change db password
-      - POSTGRES_DB=${PG_DB} # change default database that is created when the image is first started. 
+      - POSTGRES_DB=${PG_DB} # change default database that is created when the image is first started.
     volumes:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/1-init.sql # create init table and data
       - pg-data:/var/lib/postgresql/data # map persistent data
@@ -17,4 +19,3 @@ services:
 
 volumes:
   pg-data:
-  
