@@ -1,0 +1,56 @@
+version: '3.1'
+services:
+  # certbot:
+  #   image: certbot/certbot
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./certbot/conf:/etc/letsencrypt
+  #     - ./certbot/www:/var/www/certbot
+  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: 'gitlab.somprasongd.work'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.somprasongd.work'
+        # Add any other gitlab.rb configuration here, each on its own line
+        gitlab_rails['lfs_enabled'] = true
+        letsencrypt['enable'] = true                                    # GitLab 10.5 and 10.6 require this option
+        external_url "https://gitlab.somprasongd.work"	                # Must use https protocol
+        letsencrypt['contact_emails'] = ['somprasong@hospital-os.com']  # Optional
+        # This example renews every 7th day at 00:30
+        letsencrypt['auto_renew_hour'] = "00"
+        letsencrypt['auto_renew_minute'] = "30"
+        letsencrypt['auto_renew_day_of_month'] = "*/7"
+        # # registry
+        # registry_external_url "https://registry.somprasongd.work"
+    ports:
+      - '80:80'
+      - '443:443'
+      - '22:22'
+      - '5005:5005'
+    volumes:
+      - '/srv/gitlab/config:/etc/gitlab'
+      - '/srv/gitlab/logs:/var/log/gitlab'
+      - '/srv/gitlab/data:/var/opt/gitlab'
+  
+  # registry:
+  #   restart: always
+  #   image: registry:2
+  #   ports:
+  #     - 127.0.0.1:5000:5000 # Expose in local
+  #   # environment:
+  #   #   REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+  #   #   REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+  #   #   REGISTRY_AUTH: htpasswd
+  #   #   REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+  #   #   REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+  #   volumes:
+  #     - /srv/registry/data:/var/lib/registry
+  #     # - /srv/registry/certs:/certs
+  #     # - /srv/registry/auth:/auth
+  
+  gitlab-runner:
+     image: gitlab/gitlab-runner:alpine
