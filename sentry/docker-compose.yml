@@ -29,12 +29,12 @@ services:
   #   restart: unless-stopped
 
   redis:
-    image: redis:3.2-alpine
+    image: redis:6.0-alpine
     restart: unless-stopped
 
   postgres:
     restart: unless-stopped
-    image: postgres:9.5
+    image: postgres:12-alpine
     environment:
       POSTGRES_USER: sentry
       POSTGRES_PASSWORD: sentry
@@ -45,7 +45,7 @@ services:
   sentry:
     <<: *defaults_sentry
     ports:
-      - 9000:9000
+      - ${SENTRY_PORT:-9000}:9000
 
   cron:
     <<: *defaults_sentry
