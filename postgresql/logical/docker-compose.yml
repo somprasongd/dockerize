@@ -1,0 +1,32 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+  db-master:
+    image: postgres:10-alpine
+    restart: always
+    ports:
+      - 5444:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hosce
+    volumes:
+      - pg-data-master:/var/lib/postgresql/data
+    command: ['postgres', '-c', 'wal_level=logical']
+
+  db-replica:
+    image: postgres:10-alpine
+    restart: always
+    ports:
+      - 5445:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hosce
+    volumes:
+      - pg-data-rep:/var/lib/postgresql/data
+
+volumes:
+  pg-data-master:
+  pg-data-rep:
