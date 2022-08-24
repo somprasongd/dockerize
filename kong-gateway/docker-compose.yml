@@ -1,0 +1,90 @@
+version: '2.4'
+services:
+  kong-database:
+    image: postgres:9.6-alpine
+    restart: always
+    ports:
+      - '5433:5432'
+    environment:
+      - TZ=Asia/Bangkok
+      - PGTZ=Asia/Bangkok
+      - POSTGRES_USER=${PG_USERNAME:-kong}
+      - POSTGRES_PASSWORD=${PG_PASSWORD:-kongpass}
+      - POSTGRES_DB=${PG_DB:-kong}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U ${PG_USERNAME:-kong} -h 127.0.0.1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kong-net
+
+  kong-migrate:
+    image: kong/kong-gateway:2.8.1.4-alpine
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-database
+      - KONG_PG_USER=${PG_USERNAME:-kong}
+      - KONG_PG_PASSWORD=${PG_PASSWORD:-kongpass}
+    command: 'kong migrations bootstrap'
+    networks:
+      - kong-net
+    depends_on:
+      kong-database:
+        condition: service_healthy
+
+  kong-gateway:
+    image: kong/kong-gateway:2.8.1.4-alpine
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-database
+      - KONG_PG_USER=${PG_USERNAME:-kong}
+      - KONG_PG_PASSWORD=${PG_PASSWORD:-kongpass}
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl
+      - KONG_ADMIN_GUI_URL=http://localhost:8002
+    ports:
+      - 8080:8000
+      - 8443:8443
+      - 8001:8001
+      - 8444:8444
+      - 8002:8002
+      - 8445:8445
+      - 8003:8003
+      - 8004:8004
+    networks:
+      - kong-net
+    depends_on:
+      # kong-database:
+      #   condition: service_healthy
+      kong-migrate:
+        condition: service_completed_successfully
+    # healthcheck:
+    #   test: ['CMD', 'curl', '-f', 'http://kong-gateway:8001']
+    #   interval: 5s
+    #   timeout: 2s
+    #   retries: 15
+
+  konga:
+    image: pantsel/konga
+    environment:
+      - NODE_ENV=development
+      - TOKEN_SECRET=${KONGA_SECRET:-supercret}
+    ports:
+      - 1337:1337
+    networks:
+      - kong-net
+    depends_on:
+      kong-gateway:
+        condition: service_started
+
+volumes:
+  pg-data:
+
+networks:
+  kong-net:
