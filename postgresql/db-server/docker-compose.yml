@@ -1,21 +1,33 @@
 version: '3'
 services:
-  db:
-    image: postgres:10-alpine
-    restart: always
+  pgadmin:
+    image: dpage/pgadmin4
     ports:
-      - '5433:5432'
+      - "${PGADMIN_PORT:-8080}:80"
     environment:
-      - TZ=Asia/Bangkok
-      - PGTZ=Asia/Bangkok
-      - POSTGRES_USER=${PG_USERNAME} # change db user
-      - POSTGRES_PASSWORD=${PG_PASSWORD} # change db password
-      - POSTGRES_DB=${PG_DB} # change default database that is created when the image is first started.
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-raksakol@raksakol.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-Raksakol1446}
+      - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=True
+      - PGADMIN_CONFIG_LOGIN_BANNER="Authorised users only!"
+      - PGADMIN_CONFIG_CONSOLE_LOG_LEVEL=10
     volumes:
-      - ./sql/init.sql:/docker-entrypoint-initdb.d/1-init.sql # create init table and data
-      - pg-data:/var/lib/postgresql/data # map persistent data
-      # or mount to host path
-      #- ./data:/var/lib/postgresql/data
+      - pga4volume:/var/lib/pgadmin
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - default
+      - db
+
 
 volumes:
-  pg-data:
+  pga4volume:
+  
+networks:
+  default:
+    external: true
+    name: webproxy
+  db:
+    external: true
+    name: db
+

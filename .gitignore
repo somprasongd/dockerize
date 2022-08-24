@@ -4,3 +4,10 @@ node_modules/
 ghost/blog/
 strapi/strapi-app/
 
+*/**/env/
+*/**/__pycache__
+
+*/**/data/
+*/**/letsencrypt/
+
+*/**/portainer_data/
